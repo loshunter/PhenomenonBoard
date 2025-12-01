@@ -51,8 +51,6 @@ export const useGraphData = (graphService: GraphService) => {
       return {
         other: otherNode,
         relation: link.relation,
-        // description is no longer a part of the Link type, returning empty string for compatibility
-        description: '' 
       };
     }).filter(conn => conn.other); // Filter out any connections where the other node wasn't found
   };

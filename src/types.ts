@@ -3,6 +3,10 @@
 // --- Core Data Shape (from research agent) ---
 
 export type EventType = 'craft' | 'entity' | 'psi' | 'occult' | 'indigenous' | 'cryptid' | 'government' | 'ultraterrestrial' | 'mixed';
+export type NodeType = 
+  | 'event_craft' | 'event_entity' | 'event_psi' | 'event_occult' | 'event_gov' | 'event_cryptid'
+  | 'person' | 'source' | 'claim' | 'phenomenon' | 'tag' | 'thread'
+  | 'concept_topic';
 
 export type Thread = 
   | 'craft_phenomena'
@@ -30,7 +34,7 @@ export type SourceType = 'book' | 'archive' | 'podcast' | 'radio' | 'tv' | 'yt' 
 
 export type ClaimType = 'what_witnesses_say' | 'what_investigators_conclude' | 'what_officials_say' | 'legendary_or_mythic_layer';
 
-export type RelationType = 'same_location' | 'same_witness' | 'same_program' | 'similar_pattern' | 'investigator_overlap' | 'mythic_parallel';
+export type RelationType = 'same_location' | 'same_witness' | 'same_program' | 'similar_pattern' | 'investigator_overlap' | 'mythic_parallel' | 'references' | 'alleges' | 'relates_to' | 'user_connected';
 
 export type Epoch = 'ancient' | 'pre_modern' | '1800s' | 'early_1900s' | 'ww2' | 'early_cold_war' | 'late_cold_war' | 'post_1990' | 'post_2000' | 'post_2017';
 
@@ -99,7 +103,10 @@ export interface Source {
 
 // --- Simulation & Rendering Shapes ---
 
-export interface Node extends EventRecord {
+export interface BaseNode {
+  id: string;
+  title: string;
+  type: NodeType;
   // Simulation properties
   x?: number;
   y?: number;
@@ -110,6 +117,47 @@ export interface Node extends EventRecord {
   radius: number;
   color: string;
 }
+
+export interface EventNode extends BaseNode {
+  type: 'event_craft' | 'event_entity' | 'event_psi' | 'event_occult' | 'event_gov' | 'event_cryptid';
+  details: EventRecord;
+}
+
+export interface PersonNode extends BaseNode {
+  type: 'person';
+  role: FigureRole;
+}
+
+export interface SourceNode extends BaseNode {
+  type: 'source';
+  source_type: SourceType;
+}
+
+export interface ClaimNode extends BaseNode {
+  type: 'claim';
+  claim_type: ClaimType;
+  text: string;
+}
+
+export interface PhenomenonNode extends BaseNode {
+  type: 'phenomenon';
+}
+
+export interface TagNode extends BaseNode {
+  type: 'tag';
+}
+
+export interface ThreadNode extends BaseNode {
+  type: 'thread';
+}
+
+export interface ConceptNode extends BaseNode {
+  type: 'concept_topic';
+  summary?: string;
+}
+
+export type Node = EventNode | PersonNode | SourceNode | ClaimNode | PhenomenonNode | TagNode | ThreadNode | ConceptNode;
+
 
 export interface Link {
   source: string; // ID of the source node

@@ -12,14 +12,15 @@ export const useCanvasRender = (
 ) => {
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !nodesRef.current || !linksRef.current) return;
+    const transform = transformRef.current;
+    if (!canvas || !nodesRef.current || !linksRef.current || !transform) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
-    ctx.translate(transformRef.current.x, transformRef.current.y);
-    ctx.scale(transformRef.current.k, transformRef.current.k);
+    ctx.translate(transform.x, transform.y);
+    ctx.scale(transform.k, transform.k);
 
     const nodesById = new Map(nodesRef.current.map(node => [node.id, node]));
 
@@ -36,7 +37,7 @@ export const useCanvasRender = (
     // Grid
     if (mode === 'RESEARCH') {
       ctx.strokeStyle = '#1e293b';
-      ctx.lineWidth = 1 / transformRef.current.k;
+      ctx.lineWidth = 1 / transform.k;
       ctx.beginPath();
       for(let i=-40; i<=40; i++) {
         const pos = i * 100;
@@ -57,11 +58,6 @@ export const useCanvasRender = (
       let alpha = 1;
       let width = 1;
       
-      if (activeNodeId) {
-        const isDirect = (link.source === activeNodeId || link.target === activeNodeId);
-        alpha = isDirect ? 0.8 : 0.05;
-      }
-      
       if (activeLink && activeLink.source === link.source && activeLink.target === link.target) {
         alpha = 1;
         width = 3;
@@ -75,7 +71,7 @@ export const useCanvasRender = (
       ctx.moveTo(sourceNode.x!, sourceNode.y!);
       ctx.lineTo(targetNode.x!, targetNode.y!);
       ctx.strokeStyle = link.color;
-      ctx.lineWidth = width / transformRef.current.k; 
+      ctx.lineWidth = width / transform.k; 
       ctx.globalAlpha = alpha;
       ctx.stroke();
     });
@@ -85,14 +81,7 @@ export const useCanvasRender = (
     // Nodes
     nodesRef.current.forEach(node => {
       let alpha = 1;
-      if (activeNodeId) {
-        const isSelf = node.id === activeNodeId;
-        const isNeighbor = neighborIds.has(node.id);
-        alpha = (isSelf || isNeighbor) ? 1 : 0.2;
-      }
       ctx.globalAlpha = alpha;
-
-      // Draw node body
       ctx.beginPath();
       ctx.arc(node.x!, node.y!, node.radius, 0, 2 * Math.PI);
       ctx.fillStyle = node.color;
@@ -101,14 +90,14 @@ export const useCanvasRender = (
       // Highlight selected
       if (selectedNode?.id === node.id) {
         ctx.strokeStyle = '#fff'; 
-        ctx.lineWidth = 3 / transformRef.current.k; 
+        ctx.lineWidth = 3 / transform.k; 
         ctx.stroke();
       }
       
       // Highlight hovered
       if (hoverInfo?.type === 'node' && hoverInfo.content.id === node.id) {
         ctx.strokeStyle = 'rgba(255,255,200,0.8)'; 
-        ctx.lineWidth = 2 / transformRef.current.k; 
+        ctx.lineWidth = 2 / transform.k; 
         ctx.stroke();
       }
     });
@@ -116,17 +105,12 @@ export const useCanvasRender = (
     // Node Labels (drawn in a separate pass so they are on top)
     nodesRef.current.forEach(node => {
       let alpha = 1;
-      if (activeNodeId) {
-        const isSelf = node.id === activeNodeId;
-        const isNeighbor = neighborIds.has(node.id);
-        alpha = (isSelf || isNeighbor) ? 1 : 0.2;
-      }
       ctx.globalAlpha = alpha;
 
       ctx.fillStyle = '#cbd5e1';
-      ctx.font = `400 ${12/transformRef.current.k}px sans-serif`;
+      ctx.font = `400 ${12/transform.k}px sans-serif`;
       ctx.textAlign = 'center';
-      const yOffset = node.radius + (12 / transformRef.current.k);
+      const yOffset = node.radius + (12 / transform.k);
       ctx.fillText(node.title, node.x!, node.y! + yOffset);
     });
 
