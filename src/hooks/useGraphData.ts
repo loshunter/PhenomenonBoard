@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Node, Link } from '../types';
+import { Node, Link, GraphData, RelationType } from '../types';
 import { GraphService } from '../services/GraphService';
+import { LINK_COLORS } from '../theme';
 
 export const useGraphData = (graphService: GraphService) => {
   const nodesRef = useRef<Node[]>([]);
@@ -8,7 +9,7 @@ export const useGraphData = (graphService: GraphService) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    graphService.load().then(data => {
+    graphService.load().then((data: GraphData) => {
       nodesRef.current = data.nodes;
       linksRef.current = data.links;
       setIsLoaded(true);
@@ -20,28 +21,40 @@ export const useGraphData = (graphService: GraphService) => {
   }, [graphService]);
 
   const addNode = (node: Node) => {
+    // Note: This will only add to the local state. Save is not implemented for static service.
     nodesRef.current.push(node);
     saveGraph();
   };
 
-  const addLink = (source: Node, target: Node) => {
+  const addLink = (sourceId: string, targetId: string) => {
     const exists = linksRef.current.find(l => 
-      (l.source.id === source.id && l.target.id === target.id) || 
-      (l.source.id === target.id && l.target.id === source.id)
+      (l.source === sourceId && l.target === targetId) || 
+      (l.source === targetId && l.target === sourceId)
     );
     if (!exists) {
-      linksRef.current.push({ source, target, relation: 'user_connected', color: '#475569', description: 'User created connection.' });
+      linksRef.current.push({ 
+        source: sourceId, 
+        target: targetId, 
+        relation: 'user_connected' as RelationType, 
+        color: LINK_COLORS.default 
+      });
       saveGraph();
     }
   };
 
   const getConnections = (node: Node) => {
-    return linksRef.current
-      .filter(l => l.source.id === node.id || l.target.id === node.id)
-      .map(l => {
-        const other = l.source.id === node.id ? l.target : l.source;
-        return { other, relation: l.relation, description: l.description };
-      });
+    const connectedLinks = linksRef.current.filter(l => l.source === node.id || l.target === node.id);
+    
+    return connectedLinks.map(link => {
+      const otherId = link.source === node.id ? link.target : link.source;
+      const otherNode = nodesRef.current.find(n => n.id === otherId);
+      return {
+        other: otherNode,
+        relation: link.relation,
+        // description is no longer a part of the Link type, returning empty string for compatibility
+        description: '' 
+      };
+    }).filter(conn => conn.other); // Filter out any connections where the other node wasn't found
   };
 
   return {

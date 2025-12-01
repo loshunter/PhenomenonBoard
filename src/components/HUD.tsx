@@ -1,57 +1,78 @@
 import React from 'react';
-import { Activity, Plus, Trash2 } from 'lucide-react';
-import { Node, NodeType } from '../types';
-import { NODE_STYLES } from '../theme';
+import { Activity, Plus, Trash2, MapPin } from 'lucide-react';
+import { Node, Link } from '../types';
 
 interface HUDProps {
   mode: 'RESEARCH' | 'SHOW';
   setMode: (mode: 'RESEARCH' | 'SHOW') => void;
   onAddNode: () => void;
   onReset: () => void;
-  hoverInfo: { x: number, y: number, content: any, type: 'node' | 'link' } | null;
+  hoverInfo: { x: number; y: number; content: any; type: 'node' | 'link' } | null;
+  nodesRef: React.RefObject<Node[]>;
 }
 
-export const HUD: React.FC<HUDProps> = ({ mode, setMode, onAddNode, onReset, hoverInfo }) => {
+const formatDate = (date: string | null) => (date ? new Date(date).getFullYear() : 'N/A');
+const titleCase = (str: string) => str.replace(/_/g, ' ').replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+
+export const HUD: React.FC<HUDProps> = ({ mode, setMode, onAddNode, onReset, hoverInfo, nodesRef }) => {
+  const renderTooltipContent = () => {
+    if (!hoverInfo) return null;
+
+    if (hoverInfo.type === 'node') {
+      const node = hoverInfo.content as Node;
+      return (
+        <div>
+          <div className="text-[10px] uppercase font-bold text-emerald-400 mb-1">
+            {titleCase(node.event_type)}
+          </div>
+          <div className="font-bold text-white mb-1">{node.title}</div>
+          <div className="text-xs text-slate-400 font-mono mb-2 flex items-center gap-1">
+             {formatDate(node.start_date)} 
+             <span className="text-slate-600">&#8226;</span>
+             <MapPin size={10} className="inline-block text-slate-500" />
+             {node.location.site}
+          </div>
+          <div className="text-xs text-slate-300 line-clamp-3">{node.summary}</div>
+        </div>
+      );
+    }
+
+    if (hoverInfo.type === 'link') {
+      const link = hoverInfo.content as Link;
+      const sourceNode = nodesRef.current?.find(n => n.id === link.source);
+      const targetNode = nodesRef.current?.find(n => n.id === link.target);
+      return (
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-2 h-2 rounded-full bg-slate-400"></div>
+            <span className="text-xs font-bold text-slate-300 uppercase">
+              {link.relation.replace(/_/g, ' ')}
+            </span>
+          </div>
+          <div className="text-xs text-white">
+            <span className="text-slate-400">Between: </span>
+            {sourceNode?.title || '...'} & {targetNode?.title || '...'}
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <>
       {/* HOVER TOOLTIP */}
       {hoverInfo && (
         <div 
-          className="fixed pointer-events-none z-50 p-3 rounded-lg shadow-2xl bg-slate-900/95 border border-slate-600 max-w-xs backdrop-blur-md"
+          className="fixed pointer-events-none z-50 p-3 rounded-lg shadow-2xl bg-slate-900/95 border border-slate-600 max-w-xs backdrop-blur-md animate-in fade-in duration-200"
           style={{ 
             left: hoverInfo.x + 15, 
             top: hoverInfo.y + 15,
             transform: 'translate(0, 0)'
           }}
         >
-          {hoverInfo.type === 'node' ? (
-            // NODE HOVER
-            <div>
-              <div className="text-[10px] uppercase font-bold text-emerald-400 mb-1">
-                {NODE_STYLES[hoverInfo.content.type as NodeType].label}
-              </div>
-              <div className="font-bold text-white mb-1">{hoverInfo.content.title}</div>
-              {hoverInfo.content.year && <div className="text-xs text-slate-400 font-mono mb-2">{hoverInfo.content.year}</div>}
-              <div className="text-xs text-slate-300 line-clamp-2">{hoverInfo.content.summary}</div>
-            </div>
-          ) : (
-            // LINK HOVER
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                 <div className="w-2 h-2 rounded-full bg-slate-400"></div>
-                 <span className="text-xs font-bold text-slate-300 uppercase">{hoverInfo.content.relation.replace('_', ' ')}</span>
-              </div>
-              <div className="text-xs text-white">
-                 <span className="text-slate-400">Between: </span>
-                 {hoverInfo.content.source.title} & {hoverInfo.content.target.title}
-              </div>
-              {hoverInfo.content.description && (
-                <div className="mt-2 text-xs text-emerald-300 italic border-t border-slate-700 pt-1">
-                   "{hoverInfo.content.description}"
-                </div>
-              )}
-            </div>
-          )}
+          {renderTooltipContent()}
         </div>
       )}
 

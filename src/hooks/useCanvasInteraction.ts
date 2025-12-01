@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Node, Link } from '../types';
 
 function getDistanceFromLineSegment(x: number, y: number, x1: number, y1: number, x2: number, y2: number) {
+  if (x1 === undefined || y1 === undefined || x2 === undefined || y2 === undefined) return Infinity;
   const A = x - x1;
   const B = y - y1;
   const C = x2 - x1;
@@ -25,7 +26,7 @@ export const useCanvasInteraction = (
   canvasRef: React.RefObject<HTMLCanvasElement>,
   nodesRef: React.RefObject<Node[]>,
   linksRef: React.RefObject<Link[]>,
-  onAddLink: (source: Node, target: Node) => void,
+  onAddLink: (sourceId: string, targetId: string) => void,
   mode: 'RESEARCH' | 'SHOW'
 ) => {
   const transformRef = useRef({ k: 1, x: window.innerWidth / 2, y: window.innerHeight / 2 });
@@ -54,19 +55,19 @@ export const useCanvasInteraction = (
   }, [canvasRef]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (!canvasRef.current) return;
+    if (!canvasRef.current || !nodesRef.current) return;
     const rect = canvasRef.current.getBoundingClientRect();
     const mx = (e.clientX - rect.left - transformRef.current.x) / transformRef.current.k;
     const my = (e.clientY - rect.top - transformRef.current.y) / transformRef.current.k;
 
-    const hit = nodesRef.current?.slice().reverse().find(n => {
-      const dist = Math.sqrt((mx - n.x)**2 + (my - n.y)**2);
+    const hit = nodesRef.current.slice().reverse().find(n => {
+      const dist = Math.sqrt((mx - (n.x ?? 0))**2 + (my - (n.y ?? 0))**2);
       return dist < n.radius + 5;
     });
 
     if (hit) {
       if (e.shiftKey && selectedNode && selectedNode.id !== hit.id) {
-        onAddLink(selectedNode, hit);
+        onAddLink(selectedNode.id, hit.id);
       } else {
         setDragNode(hit);
         setSelectedNode(hit);
@@ -78,23 +79,28 @@ export const useCanvasInteraction = (
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!canvasRef.current) return;
+    if (!canvasRef.current || !nodesRef.current || !linksRef.current) return;
     const rect = canvasRef.current.getBoundingClientRect();
     const rawX = e.clientX;
     const rawY = e.clientY;
-    const mx = (e.clientX - rect.left - transformRef.current.x) / transformRef.current.k;
-    const my = (e.clientY - rect.top - transformRef.current.y) / transformRef.current.k;
+    const mx = (rawX - rect.left - transformRef.current.x) / transformRef.current.k;
+    const my = (rawY - rect.top - transformRef.current.y) / transformRef.current.k;
 
-    const hitNode = nodesRef.current?.slice().reverse().find(n => {
-      const dist = Math.sqrt((mx - n.x)**2 + (my - n.y)**2);
+    const hitNode = nodesRef.current.slice().reverse().find(n => {
+      const dist = Math.sqrt((mx - (n.x ?? 0))**2 + (my - (n.y ?? 0))**2);
       return dist < n.radius + 5;
     });
 
     if (hitNode) {
       setHoverInfo({ x: rawX, y: rawY, content: hitNode, type: 'node' });
     } else {
-      const hitLink = linksRef.current?.find(l => {
-        const dist = getDistanceFromLineSegment(mx, my, l.source.x, l.source.y, l.target.x, l.target.y);
+      const nodesById = new Map(nodesRef.current.map(node => [node.id, node]));
+      const hitLink = linksRef.current.find(l => {
+        const sourceNode = nodesById.get(l.source);
+        const targetNode = nodesById.get(l.target);
+        if (!sourceNode || !targetNode) return false;
+        
+        const dist = getDistanceFromLineSegment(mx, my, sourceNode.x!, sourceNode.y!, targetNode.x!, targetNode.y!);
         return dist < 5 / transformRef.current.k;
       });
 
@@ -122,9 +128,11 @@ export const useCanvasInteraction = (
   
   const getScreenCenter = () => {
     if (!canvasRef.current) return { x: 0, y: 0 };
+    const { width, height } = canvasRef.current;
+    const { k, x, y } = transformRef.current;
     return {
-        x: -transformRef.current.x / transformRef.current.k + (canvasRef.current.width/2)/transformRef.current.k,
-        y: -transformRef.current.y / transformRef.current.k + (canvasRef.current.height/2)/transformRef.current.k,
+        x: (width / 2 - x) / k,
+        y: (height / 2 - y) / k,
     }
   }
 

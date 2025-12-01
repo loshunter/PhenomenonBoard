@@ -1,0 +1,102 @@
+{
+  "events": [
+    {
+      "id": "e_roswell",
+      "title": "Roswell Incident",
+      "event_type": "craft",
+      "threads": ["craft_phenomena", "government_program"],
+      "start_date": "1947-07-01",
+      "end_date": "1947-07-08",
+      "date_precision": "range",
+      "location": {
+        "planet": "Earth",
+        "country": "USA",
+        "region": "New Mexico",
+        "site": "Roswell",
+        "coordinates": { "lat": 33.3872, "lon": -104.5281 }
+      },
+      "summary": "Alleged crash of an unidentified flying object in Roswell, New Mexico. Debris was recovered by rancher W.W. 'Mac' Brazel and subsequently by the US Army Air Forces. The official explanation evolved from 'flying disc' to 'weather balloon'.",
+      "key_phenomena": ["crash_retrieval", "government_investigation"],
+      "key_figures": [
+        { "name": "Jesse Marcel", "role": "military", "notes": "Intelligence officer who first investigated the debris." },
+        { "name": "W.W. Brazel", "role": "witness", "notes": "Rancher who discovered the debris field." }
+      ],
+      "primary_sources": [],
+      "secondary_sources": [],
+      "claims": [],
+      "official_explanations": [
+        { "agency_or_person": "US Army Air Forces", "explanation": "Weather balloon", "source_ref": "Roswell Daily Record, July 9, 1947" }
+      ],
+      "controversies": ["Initial reports of a 'flying disc' were quickly retracted.", "Witness testimonies decades later contradicted the official weather balloon story."],
+      "connections": [],
+      "epoch": "ww2",
+      "confidence": { "source_quality": 0.6, "date_certainty": 0.8, "location_certainty": 0.9, "basic_fact_consensus": 0.5 },
+      "tags": ["roswell", "crash_retrieval", "new_mexico", "1947"]
+    },
+    {
+      "id": "h_bluebook",
+      "title": "Project Blue Book",
+      "event_type": "government",
+      "threads": ["government_program"],
+      "start_date": "1952-03-01",
+      "end_date": "1969-12-17",
+      "date_precision": "range",
+      "location": {
+        "planet": "Earth",
+        "country": "USA",
+        "region": "Ohio",
+        "site": "Wright-Patterson AFB",
+        "coordinates": { "lat": 39.7799, "lon": -84.1891 }
+      },
+      "summary": "The third major systematic study of Unidentified Flying Objects (UFOs) by the United States Air Force. It followed Projects Sign and Grudge. Its stated goals were to determine if UFOs were a threat to national security and to scientifically analyze UFO-related data.",
+      "key_phenomena": ["government_investigation"],
+      "key_figures": [
+        { "name": "J. Allen Hynek", "role": "scientist", "notes": "Chief scientific advisor to the project." },
+        { "name": "Edward J. Ruppelt", "role": "military", "notes": "First head of Project Blue Book." }
+      ],
+      "primary_sources": [],
+      "secondary_sources": [],
+      "claims": [],
+      "official_explanations": [],
+      "controversies": ["Accused of being a PR effort to debunk sightings rather than a serious scientific study.", "The Condon Committee, which led to its termination, was also highly controversial."],
+      "connections": [
+        { "related_event_id": "e_roswell", "relation_type": "investigator_overlap", "notes": "Although Roswell predates Blue Book, its files and legacy were a constant backdrop to the project's work." },
+        { "related_event_id": "e_socorro", "relation_type": "investigator_overlap", "notes": "The Socorro case was one of the most famous 'unidentified' cases in Blue Book's files." }
+      ],
+      "epoch": "early_cold_war",
+      "confidence": { "source_quality": 0.9, "date_certainty": 1.0, "location_certainty": 1.0, "basic_fact_consensus": 0.9 },
+      "tags": ["blue_book", "usaf", "hynek", "official_study"]
+    },
+    {
+      "id": "e_socorro",
+      "title": "Socorro Landing",
+      "event_type": "craft",
+      "threads": ["craft_phenomena", "entity_contact"],
+      "start_date": "1964-04-24",
+      "end_date": "1964-04-24",
+      "date_precision": "day",
+      "location": {
+        "planet": "Earth",
+        "country": "USA",
+        "region": "New Mexico",
+        "site": "Socorro",
+        "coordinates": { "lat": 34.063, "lon": -106.8955 }
+      },
+      "summary": "Police officer Lonnie Zamora witnessed an egg-shaped craft land. He saw two small beings in white overalls beside the craft before it took off with a loud roar and a blue flame. Physical trace evidence was left behind.",
+      "key_phenomena": ["sighting", "landing_trace"],
+      "key_figures": [
+        { "name": "Lonnie Zamora", "role": "witness", "notes": "The sole primary witness to the event." },
+        { "name": "J. Allen Hynek", "role": "investigator", "notes": "Investigated for Project Blue Book and considered it a key unexplained case." }
+      ],
+      "primary_sources": [],
+      "secondary_sources": [],
+      "claims": [],
+      "official_explanations": [],
+      "controversies": ["Despite physical evidence and a credible witness, no definitive explanation was found.", "Some skeptical theories proposed it was a prank or a misidentification of an experimental craft."],
+      "connections": [],
+      "epoch": "late_cold_war",
+      "confidence": { "source_quality": 0.8, "date_certainty": 1.0, "location_certainty": 1.0, "basic_fact_consensus": 0.7 },
+      "tags": ["socorro", "lonnie_zamora", "landing_trace", "blue_book_case"]
+    }
+  ]
+}

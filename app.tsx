@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Node, Link, NodeType } from './src/types';
-import { LocalStorageGraphService } from './src/services/GraphService';
+import { Node, Link } from './src/types';
+import { StaticGraphService } from './src/services/GraphService';
 import { useGraphData } from './src/hooks/useGraphData';
 import { usePhysicsSimulation } from './src/hooks/usePhysicsSimulation';
 import { useCanvasInteraction } from './src/hooks/useCanvasInteraction';
@@ -10,7 +10,7 @@ import { HUD } from './src/components/HUD';
 import { NodeDetailPanel } from './src/components/NodeDetailPanel';
 import { AddNodeModal } from './src/components/AddNodeModal';
 
-const graphService = new LocalStorageGraphService();
+const graphService = new StaticGraphService();
 
 export default function PhenomenonBoard() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -87,6 +87,7 @@ export default function PhenomenonBoard() {
         onAddNode={() => setIsAddingNode(true)}
         onReset={resetGraph}
         hoverInfo={hoverInfo}
+        nodesRef={nodesRef}
       />
       {isAddingNode && (
         <AddNodeModal
